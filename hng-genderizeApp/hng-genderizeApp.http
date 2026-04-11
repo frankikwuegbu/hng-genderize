@@ -1,0 +1,6 @@
+@hng_genderizeApp_HostAddress = http://localhost:5096
+
+GET {{hng_genderizeApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
