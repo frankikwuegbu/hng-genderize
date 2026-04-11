@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace hng_genderizeApp.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class ApiController : ControllerBase
+    [Route("api")]
+    public class NamesController : ControllerBase
     {
         private readonly GenderizeServices _genderizeService;
 
-        public ApiController(GenderizeServices genderizeService)
+        public NamesController(GenderizeServices genderizeService)
         {
             _genderizeService = genderizeService;
         }
