@@ -1,21 +1,8 @@
-using hng_genderizeApp.Services;
-using Scalar.AspNetCore;
+using hng_genderizeApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
-builder.Services.AddOpenApi();
-
-//genderize service
-builder.Services.AddHttpClient<GenderizeServices>(client =>
-{
-    client.BaseAddress = new Uri("https://api.genderize.io/");
-});
-
-//builder.Services.AddScoped<GenderizeServices>
+builder.AddDependencyInjection();
 
 var app = builder.Build();
 
