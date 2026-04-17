@@ -5,7 +5,7 @@ namespace Application.Common;
 public class NationlizeResponse
 {
     [JsonPropertyName("count")]
-    public int Count { get; set; }
+    public int? Count { get; set; }
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }
@@ -17,8 +17,8 @@ public class NationlizeResponse
 public class CountryDto
 {
     [JsonPropertyName("country_id")]
-    public string? Nationality { get; set; }
+    public string? CountryId { get; set; }
 
     [JsonPropertyName("probability")]
-    public float Probabilty { get; set; }
+    public float? Probability { get; set; }
 }

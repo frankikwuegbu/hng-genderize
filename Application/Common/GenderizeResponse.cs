@@ -5,7 +5,7 @@ namespace Application.Common;
 public class GenderizeResponse
 {
     [JsonPropertyName("count")]
-    public int Count { get; set; }
+    public int? Count { get; set; }
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }

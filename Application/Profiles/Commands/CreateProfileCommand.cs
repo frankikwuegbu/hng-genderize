@@ -19,30 +19,38 @@ public class CreateProfileCommandHandler : IRequestHandler<CreateProfileCommand,
     {
         _profileServices = profileServices;
         _context = context;
-
     }
 
     public async Task<Result> Handle(CreateProfileCommand request, CancellationToken cancellationToken)
     {
-        //create profile
-        var result = await _profileServices.CreateProfile(request.Name);
-
-        if (string.IsNullOrWhiteSpace(result.Name))
+        if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Failure("a profile could not be created for the name provided");
+            return Result.Error("Missing or empty name", 400);
         }
 
-        //check if profile exists
-        var existingProfile = await _context.Profiles.FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken);
+        var normalizedName = request.Name.Trim().ToLowerInvariant();
+
+        var existingProfile = await _context.Profiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(profile => profile.Name.ToLower() == normalizedName, cancellationToken);
 
         if (existingProfile is not null)
         {
-            return Result.Failure("this profile already exists", existingProfile);
+            return Result.Success(existingProfile.ToDetailResponse(), "Profile already exists");
         }
 
-        await _context.Profiles.AddAsync(result, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            var profile = await _profileServices.CreateProfile(normalizedName, cancellationToken);
 
-        return Result.Success(result);
+            await _context.Profiles.AddAsync(profile, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success(profile.ToDetailResponse(), statusCode: 201);
+        }
+        catch (ExternalApiException exception)
+        {
+            return Result.Error(exception.Message, 502);
+        }
     }
 }
