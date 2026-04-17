@@ -14,83 +14,148 @@ public class ProfileServices : IProfileServices
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<Profile> CreateProfile(string name)
+    public async Task<Profile> CreateProfile(string name, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(name) || ContainsNonLetter(name))
-        {
-            return new Profile();
-        }
-
-        var genderClient = _httpClientFactory.CreateClient("genderize");
-        var ageAndGroup = await GetAgeAndAgeGroup(name);
-        var country = await GetCountry(name);
-        var genderResponse = await genderClient.GetFromJsonAsync<GenderizeResponse>($"?name={name}");
-
-        if (genderResponse == null || country == null || ageAndGroup == null)
-        {
-            return new Profile();
-        }
+        var genderize = await GetGenderize(name, cancellationToken);
+        var agify = await GetAgify(name, cancellationToken);
+        var nationalize = await GetNationalize(name, cancellationToken);
 
         return new Profile
         {
+            Id = Guid.CreateVersion7(),
             Name = name,
-            Gender = genderResponse.Gender,
-            GenderProbability = genderResponse.Probability,
-            Sample_Size = genderResponse.Count,
-            Age = ageAndGroup.Age,
-            AgeGroup = ageAndGroup.AgeGroup,
-            CountryId = country.Nationality,
-            CountryProbability = country.Probabilty
+            Gender = genderize.Gender!,
+            GenderProbability = genderize.Probability!.Value,
+            SampleSize = genderize.Count!.Value,
+            Age = agify.Age!.Value,
+            AgeGroup = GetAgeGroup(agify.Age.Value),
+            CountryId = nationalize.CountryId!,
+            CountryProbability = nationalize.Probability!.Value,
+            CreatedAt = DateTime.UtcNow
         };
     }
 
-    public async Task<AgeifyResponse?> GetAgeAndAgeGroup(string name)
+    private async Task<GenderizeResponse> GetGenderize(string name, CancellationToken cancellationToken)
     {
-        var ageClient = _httpClientFactory.CreateClient("agify");
-        var ageResponse = await ageClient.GetFromJsonAsync<AgeifyResponse>($"?name={name}");
+        var client = _httpClientFactory.CreateClient("genderize");
 
-        if (ageResponse == null)
+        try
         {
-            return null;
-        }
+            var response = await client.GetFromJsonAsync<GenderizeResponse>($"?name={name}", cancellationToken);
 
-        if (ageResponse.Age <= 12)
-        {
-            ageResponse.AgeGroup = "child";
-        }
-        else if (ageResponse.Age <= 19)
-        {
-            ageResponse.AgeGroup = "teenager";
-        }
-        else if (ageResponse.Age <= 59)
-        {
-            ageResponse.AgeGroup = "adult";
-        }
-        else
-        {
-            ageResponse.AgeGroup = "elder";
-        }
+            if (response?.Gender == null || response.Count is null || response.Count == 0 || response.Probability is null)
+            {
+                throw new ExternalApiException("Genderize");
+            }
 
-        return ageResponse;
+            return response;
+        }
+        catch (HttpRequestException)
+        {
+            throw new ExternalApiException("Genderize");
+        }
+        catch (NotSupportedException)
+        {
+            throw new ExternalApiException("Genderize");
+        }
+        catch (ExternalApiException)
+        {
+            throw;
+        }
+        catch
+        {
+            throw new ExternalApiException("Genderize");
+        }
     }
 
-    public async Task<CountryDto?> GetCountry(string name)
+    private async Task<AgeifyResponse> GetAgify(string name, CancellationToken cancellationToken)
     {
-        var nationalityClient = _httpClientFactory.CreateClient("nationalize");
-        var nationalityResponse = await nationalityClient.GetFromJsonAsync<NationlizeResponse>($"?name={name}");
+        var client = _httpClientFactory.CreateClient("agify");
 
-        if (nationalityResponse?.Country == null)
+        try
         {
-            return null;
-        }
+            var response = await client.GetFromJsonAsync<AgeifyResponse>($"?name={name}", cancellationToken);
 
-        return nationalityResponse.Country
-            .OrderByDescending(country => country.Probabilty)
-            .FirstOrDefault();
+            if (response?.Age is null)
+            {
+                throw new ExternalApiException("Agify");
+            }
+
+            return response;
+        }
+        catch (HttpRequestException)
+        {
+            throw new ExternalApiException("Agify");
+        }
+        catch (NotSupportedException)
+        {
+            throw new ExternalApiException("Agify");
+        }
+        catch (ExternalApiException)
+        {
+            throw;
+        }
+        catch
+        {
+            throw new ExternalApiException("Agify");
+        }
     }
 
-    private static bool ContainsNonLetter(string value)
+    private async Task<CountryDto> GetNationalize(string name, CancellationToken cancellationToken)
     {
-        return value.Any(character => !char.IsLetter(character));
+        var client = _httpClientFactory.CreateClient("nationalize");
+
+        try
+        {
+            var response = await client.GetFromJsonAsync<NationlizeResponse>($"?name={name}", cancellationToken);
+
+            var country = response?.Country?
+                .Where(item => !string.IsNullOrWhiteSpace(item.CountryId) && item.Probability is not null)
+                .OrderByDescending(item => item.Probability)
+                .FirstOrDefault();
+
+            if (country == null)
+            {
+                throw new ExternalApiException("Nationalize");
+            }
+
+            return country;
+        }
+        catch (HttpRequestException)
+        {
+            throw new ExternalApiException("Nationalize");
+        }
+        catch (NotSupportedException)
+        {
+            throw new ExternalApiException("Nationalize");
+        }
+        catch (ExternalApiException)
+        {
+            throw;
+        }
+        catch
+        {
+            throw new ExternalApiException("Nationalize");
+        }
+    }
+
+    private static string GetAgeGroup(int age)
+    {
+        if (age <= 12)
+        {
+            return "child";
+        }
+
+        if (age <= 19)
+        {
+            return "teenager";
+        }
+
+        if (age <= 59)
+        {
+            return "adult";
+        }
+
+        return "senior";
     }
 }

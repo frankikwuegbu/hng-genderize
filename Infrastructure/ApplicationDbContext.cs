@@ -17,6 +17,13 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        modelBuilder.Entity<Profile>(builder =>
+        {
+            builder.HasIndex(profile => profile.Name).IsUnique();
+            builder.Property(profile => profile.Name).HasMaxLength(200);
+            builder.Property(profile => profile.Gender).HasMaxLength(50);
+            builder.Property(profile => profile.AgeGroup).HasMaxLength(50);
+            builder.Property(profile => profile.CountryId).HasMaxLength(10);
+        });
     }
 }

@@ -21,16 +21,16 @@ public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand,
 
     public async Task<Result> Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
     {
-        var result = await _context.Profiles.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        var profile = await _context.Profiles.FirstOrDefaultAsync(item => item.Id == request.Id, cancellationToken);
 
-        if (result is null)
+        if (profile is null)
         {
-            return Result.Failure("the profile does not exist");
+            return Result.Error("Profile not found", 404);
         }
 
-        _context.Profiles.Remove(result);
+        _context.Profiles.Remove(profile);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("profile deleted");
+        return Result.NoContent();
     }
 }
