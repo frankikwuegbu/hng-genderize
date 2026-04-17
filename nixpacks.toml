@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["dotnet-sdk_9"]
+
+[phases.build]
+cmds = [
+  "dotnet restore hng-genderizeApp/hng-genderizeApp.csproj",
+  "dotnet publish hng-genderizeApp/hng-genderizeApp.csproj -c Release -o out"
+]
+
+[start]
+cmd = "dotnet out/hng-genderizeApp.dll"
