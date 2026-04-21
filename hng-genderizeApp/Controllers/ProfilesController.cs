@@ -76,6 +76,17 @@ public class ProfilesController : ControllerBase
         return ToActionResult(result);
     }
 
+    [HttpGet("{id}")]
+    public IActionResult GetProfileByIdInvalid(string id)
+    {
+        if (Guid.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        return ToActionResult(Result.Error("Invalid type", StatusCodes.Status422UnprocessableEntity));
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateProfile([FromBody] CreateProfileCommand command)
     {
@@ -92,6 +103,17 @@ public class ProfilesController : ControllerBase
         });
 
         return ToActionResult(result);
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteProfileInvalid(string id)
+    {
+        if (Guid.TryParse(id, out _))
+        {
+            return NotFound();
+        }
+
+        return ToActionResult(Result.Error("Invalid type", StatusCodes.Status422UnprocessableEntity));
     }
 
     private IActionResult ToActionResult(Result result)

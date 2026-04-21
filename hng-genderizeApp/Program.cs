@@ -1,4 +1,5 @@
 using Application.Common;
+using Microsoft.AspNetCore.Diagnostics;
 using hng_genderizeApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,9 +12,17 @@ app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
     {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(Result.Error("An unexpected server error occurred", StatusCodes.Status500InternalServerError));
+
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var result = exception switch
+        {
+            ExternalApiException externalApiException => Result.Error(externalApiException.Message, StatusCodes.Status502BadGateway),
+            _ => Result.Error("An unexpected server error occurred", StatusCodes.Status500InternalServerError)
+        };
+
+        context.Response.StatusCode = result.StatusCode;
+        await context.Response.WriteAsJsonAsync(result);
     });
 });
 

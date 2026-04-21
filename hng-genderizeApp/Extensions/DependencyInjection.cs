@@ -40,7 +40,7 @@ public static class DependencyInjection
                     return new UnprocessableEntityObjectResult(Result.Error("Invalid type", StatusCodes.Status422UnprocessableEntity));
                 }
 
-                return new BadRequestObjectResult(Result.Error("Missing or empty name", StatusCodes.Status400BadRequest));
+                return new BadRequestObjectResult(Result.Error("Missing or empty parameter", StatusCodes.Status400BadRequest));
             };
         });
 

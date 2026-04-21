@@ -23,6 +23,11 @@ public class SearchProfilesQueryHandler : IRequestHandler<SearchProfilesQuery, R
 
     public async Task<Result> Handle(SearchProfilesQuery request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.Q))
+        {
+            return Result.Error("Missing or empty parameter", 400);
+        }
+
         if (!ProfileNaturalLanguageQueryParser.TryParse(request.Q, out var filters))
         {
             return Result.Error("Unable to interpret query", 400);

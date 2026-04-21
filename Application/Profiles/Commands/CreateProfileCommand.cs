@@ -25,7 +25,7 @@ public class CreateProfileCommandHandler : IRequestHandler<CreateProfileCommand,
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            return Result.Error("Missing or empty name", 400);
+            return Result.Error("Missing or empty parameter", 400);
         }
 
         var normalizedName = request.Name.Trim().ToLowerInvariant();
