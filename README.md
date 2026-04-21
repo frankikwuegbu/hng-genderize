@@ -19,7 +19,7 @@ For local development, update the connection string in `hng-genderizeApp/appsett
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Port=5432;Database=hng-genderize;Username=postgres;Password=postgres"
+  "DefaultConnection": "Host=localhost;Port=5432;Database=hng-genderize;Username=postgres;Password=postgrespassword"
 }
 ```
 
