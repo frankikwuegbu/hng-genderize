@@ -6,6 +6,7 @@ using Infrastructure;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace hng_genderizeApp.Extensions;
 
@@ -47,9 +48,11 @@ public static class DependencyInjection
         builder.Services.AddOpenApi();
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(
-                builder.Configuration.GetConnectionString("DefaultConnection"),
-                sqlServerOptions => sqlServerOptions.EnableRetryOnFailure());
+            var connectionString = BuildPostgresConnectionString(builder.Configuration);
+
+            options.UseNpgsql(
+                connectionString,
+                npgsqlOptions => npgsqlOptions.EnableRetryOnFailure());
         });
         builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         builder.Services.AddScoped<IProfileServices, ProfileServices>();
@@ -70,5 +73,44 @@ public static class DependencyInjection
         {
             client.BaseAddress = new Uri("https://api.agify.io/");
         });
+    }
+
+    private static string BuildPostgresConnectionString(ConfigurationManager configuration)
+    {
+        var host = configuration["PGHOST"];
+
+        if (!string.IsNullOrWhiteSpace(host))
+        {
+            var portValue = configuration["PGPORT"];
+            var port = 5432;
+
+            if (!string.IsNullOrWhiteSpace(portValue) && int.TryParse(portValue, out var parsedPort))
+            {
+                port = parsedPort;
+            }
+
+            var builder = new NpgsqlConnectionStringBuilder
+            {
+                Host = host,
+                Port = port,
+                Database = configuration["PGDATABASE"] ?? string.Empty,
+                Username = configuration["PGUSER"] ?? string.Empty,
+                Password = configuration["PGPASSWORD"] ?? string.Empty,
+                SslMode = SslMode.Require,
+                TrustServerCertificate = true
+            };
+
+            return builder.ConnectionString;
+        }
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            return connectionString;
+        }
+
+        throw new InvalidOperationException(
+            "No PostgreSQL connection configuration was found. Set ConnectionStrings__DefaultConnection or the Railway PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD variables.");
     }
 }

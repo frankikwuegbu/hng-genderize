@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,16 +15,16 @@ namespace Infrastructure.Migrations
                 name: "Profiles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Gender = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     GenderProbability = table.Column<float>(type: "real", nullable: false),
-                    SampleSize = table.Column<int>(type: "int", nullable: false),
-                    Age = table.Column<int>(type: "int", nullable: false),
-                    AgeGroup = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CountryId = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    SampleSize = table.Column<int>(type: "integer", nullable: false),
+                    Age = table.Column<int>(type: "integer", nullable: false),
+                    AgeGroup = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CountryId = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     CountryProbability = table.Column<float>(type: "real", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
