@@ -49,6 +49,22 @@ public class ProfilesController : ControllerBase
         return ToActionResult(result);
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProfiles(
+        [FromQuery(Name = "q")] string? query,
+        [FromQuery] int? page,
+        [FromQuery] int? limit)
+    {
+        var result = await _sender.Send(new SearchProfilesQuery
+        {
+            Q = query,
+            Page = page ?? 1,
+            Limit = limit ?? 10
+        });
+
+        return ToActionResult(result);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProfileById(Guid id)
     {
