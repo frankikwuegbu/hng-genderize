@@ -1,0 +1,8 @@
+.git
+.vs
+**/bin
+**/obj
+*.txt
+README.md
+nixpacks.toml
+railway.json

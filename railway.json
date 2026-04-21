@@ -1,13 +1,15 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "RAILPACK",
-    "buildCommand": "dotnet restore hng-genderizeApp.sln && dotnet publish hng-genderizeApp/hng-genderizeApp.csproj --no-restore -c Release -o out",
+    "builder": "DOCKERFILE",
+    "buildCommand": null,
     "watchPatterns": [
       "/Application/**",
       "/Domain/**",
       "/Infrastructure/**",
       "/hng-genderizeApp/**",
+      "/Dockerfile",
+      "/.dockerignore",
       "/start.sh",
       "/nixpacks.toml",
       "/railway.json",
@@ -16,6 +18,6 @@
     ]
   },
   "deploy": {
-    "startCommand": "sh start.sh"
+    "startCommand": null
   }
 }
