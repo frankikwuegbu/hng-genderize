@@ -21,13 +21,29 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> GetAllProfiles(
         [FromQuery] string? gender,
         [FromQuery(Name = "country_id")] string? countryId,
-        [FromQuery(Name = "age_group")] string? ageGroup)
+        [FromQuery(Name = "age_group")] string? ageGroup,
+        [FromQuery(Name = "min_age")] int? minAge,
+        [FromQuery(Name = "max_age")] int? maxAge,
+        [FromQuery(Name = "min_gender_probability")] float? minGenderProbability,
+        [FromQuery(Name = "min_country_probability")] float? minCountryProbability,
+        [FromQuery(Name = "sort_by")] string? sortBy,
+        [FromQuery] string? order,
+        [FromQuery] int? page,
+        [FromQuery] int? limit)
     {
         var result = await _sender.Send(new GetAllProfilesQuery
         {
             Gender = gender,
             CountryId = countryId,
-            AgeGroup = ageGroup
+            AgeGroup = ageGroup,
+            MinAge = minAge,
+            MaxAge = maxAge,
+            MinGenderProbability = minGenderProbability,
+            MinCountryProbability = minCountryProbability,
+            SortBy = sortBy,
+            Order = order,
+            Page = page ?? 1,
+            Limit = limit ?? 10
         });
 
         return ToActionResult(result);

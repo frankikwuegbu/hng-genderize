@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Globalization;
 using Domain.Entity;
 
 namespace Application.Profiles;
@@ -47,6 +48,9 @@ public class ProfileListItemResponse
     [JsonPropertyName("gender")]
     public string Gender { get; set; } = string.Empty;
 
+    [JsonPropertyName("gender_probability")]
+    public float GenderProbability { get; set; }
+
     [JsonPropertyName("age")]
     public int Age { get; set; }
 
@@ -55,6 +59,15 @@ public class ProfileListItemResponse
 
     [JsonPropertyName("country_id")]
     public string CountryId { get; set; } = string.Empty;
+
+    [JsonPropertyName("country_name")]
+    public string CountryName { get; set; } = string.Empty;
+
+    [JsonPropertyName("country_probability")]
+    public float CountryProbability { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; set; }
 }
 
 public static class ProfileResponseMapping
@@ -83,9 +96,30 @@ public static class ProfileResponseMapping
             Id = profile.Id,
             Name = profile.Name,
             Gender = profile.Gender,
+            GenderProbability = profile.GenderProbability,
             Age = profile.Age,
             AgeGroup = profile.AgeGroup,
-            CountryId = profile.CountryId
+            CountryId = profile.CountryId,
+            CountryName = GetCountryName(profile.CountryId),
+            CountryProbability = profile.CountryProbability,
+            CreatedAt = profile.CreatedAt
         };
+    }
+
+    private static string GetCountryName(string countryId)
+    {
+        if (string.IsNullOrWhiteSpace(countryId))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return new RegionInfo(countryId.Trim().ToUpperInvariant()).EnglishName;
+        }
+        catch (ArgumentException)
+        {
+            return countryId.Trim().ToUpperInvariant();
+        }
     }
 }
