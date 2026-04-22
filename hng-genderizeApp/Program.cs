@@ -1,6 +1,8 @@
 using Application.Common;
+using Infrastructure;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using hng_genderizeApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +13,10 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var seedService = scope.ServiceProvider.GetRequiredService<ProfileSeedService>();
     var seedFilePath = Path.Combine(AppContext.BaseDirectory, "hng_seed_profiles.json");
+    await dbContext.Database.MigrateAsync();
     await seedService.SeedAsync(seedFilePath);
 }
 
