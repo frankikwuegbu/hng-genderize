@@ -56,6 +56,7 @@ public static class DependencyInjection
         });
         builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         builder.Services.AddScoped<IProfileServices, ProfileServices>();
+        builder.Services.AddScoped<ProfileSeedService>();
         builder.Services.AddMediatR(configuration =>
             configuration.RegisterServicesFromAssemblyContaining<CreateProfileCommand>());
 
