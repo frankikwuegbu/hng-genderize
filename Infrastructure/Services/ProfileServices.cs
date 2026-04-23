@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Globalization;
 using Application.Common;
 using Application.Common.Interfaces;
 using Domain.Entity;
@@ -30,6 +31,7 @@ public class ProfileServices : IProfileServices
             Age = agify.Age!.Value,
             AgeGroup = GetAgeGroup(agify.Age.Value),
             CountryId = nationalize.CountryId!,
+            CountryName = GetCountryName(nationalize.CountryId),
             CountryProbability = nationalize.Probability!.Value,
             CreatedAt = DateTime.UtcNow
         };
@@ -157,5 +159,22 @@ public class ProfileServices : IProfileServices
         }
 
         return "senior";
+    }
+
+    private static string GetCountryName(string? countryId)
+    {
+        if (string.IsNullOrWhiteSpace(countryId))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return new RegionInfo(countryId.Trim().ToUpperInvariant()).EnglishName;
+        }
+        catch (ArgumentException)
+        {
+            return countryId.Trim().ToUpperInvariant();
+        }
     }
 }

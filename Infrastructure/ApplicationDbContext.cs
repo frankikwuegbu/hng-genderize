@@ -24,6 +24,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             builder.Property(profile => profile.Gender).HasMaxLength(50);
             builder.Property(profile => profile.AgeGroup).HasMaxLength(50);
             builder.Property(profile => profile.CountryId).HasMaxLength(10);
+            builder.Property(profile => profile.CountryName).HasMaxLength(200);
         });
     }
 }

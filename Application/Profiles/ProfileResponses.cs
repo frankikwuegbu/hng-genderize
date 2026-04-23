@@ -30,6 +30,9 @@ public class ProfileDetailResponse
     [JsonPropertyName("country_id")]
     public string CountryId { get; set; } = string.Empty;
 
+    [JsonPropertyName("country_name")]
+    public string CountryName { get; set; } = string.Empty;
+
     [JsonPropertyName("country_probability")]
     public float CountryProbability { get; set; }
 
@@ -50,6 +53,9 @@ public class ProfileListItemResponse
 
     [JsonPropertyName("gender_probability")]
     public float GenderProbability { get; set; }
+
+    [JsonPropertyName("sample_size")]
+    public int SampleSize { get; set; }
 
     [JsonPropertyName("age")]
     public int Age { get; set; }
@@ -84,6 +90,7 @@ public static class ProfileResponseMapping
             Age = profile.Age,
             AgeGroup = profile.AgeGroup,
             CountryId = profile.CountryId,
+            CountryName = GetCountryName(profile.CountryId, profile.CountryName),
             CountryProbability = profile.CountryProbability,
             CreatedAt = profile.CreatedAt
         };
@@ -97,17 +104,23 @@ public static class ProfileResponseMapping
             Name = profile.Name,
             Gender = profile.Gender,
             GenderProbability = profile.GenderProbability,
+            SampleSize = profile.SampleSize,
             Age = profile.Age,
             AgeGroup = profile.AgeGroup,
             CountryId = profile.CountryId,
-            CountryName = GetCountryName(profile.CountryId),
+            CountryName = GetCountryName(profile.CountryId, profile.CountryName),
             CountryProbability = profile.CountryProbability,
             CreatedAt = profile.CreatedAt
         };
     }
 
-    private static string GetCountryName(string countryId)
+    private static string GetCountryName(string countryId, string? storedCountryName)
     {
+        if (!string.IsNullOrWhiteSpace(storedCountryName))
+        {
+            return storedCountryName.Trim();
+        }
+
         if (string.IsNullOrWhiteSpace(countryId))
         {
             return string.Empty;

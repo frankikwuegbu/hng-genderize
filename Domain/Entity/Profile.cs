@@ -10,6 +10,7 @@ public class Profile
     public int Age { get; set; }
     public string AgeGroup { get; set; } = string.Empty;
     public string CountryId { get; set; } = string.Empty;
+    public string CountryName { get; set; } = string.Empty;
     public float CountryProbability { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
